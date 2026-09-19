@@ -95,56 +95,63 @@ const UI = {
     document.getElementById('top-bar').classList.add('hidden');
   },
 
-  // ===== 任务面板 =====
+  // ===== 任务面板（精美卡片版） =====
+  questChapterName(ch) {
+    const names = ['序章', '第一章', '第二章', '第三章', '第四章', '第五章', '第六章', '终章'];
+    return names[ch] || '';
+  },
+
+  // 任务奖励：随章节递增，支线固定
+  questReward(q) {
+    if (q.reward) return q.reward;
+    const byCh = { 0: [10, 5], 1: [20, 5], 2: [25, 10], 3: [40, 15], 4: [50, 20], 5: [60, 20], 6: [100, 25], 7: [200, 30] };
+    if (q.type === 'side') return { supplies: 15, morale: 8 };
+    const [s, m] = byCh[q.chapter] || [20, 5];
+    return { supplies: s, morale: m };
+  },
+
   updateQuestPanel() {
     const list = document.getElementById('quest-list');
     list.innerHTML = '';
 
     const state = Game.state;
 
-    // 进行中
-    const activeMain = state.quests.active.filter(q => {
-      const qd = Quests[q];
-      return qd && qd.type === 'main';
-    });
-    const activeSide = state.quests.active.filter(q => {
-      const qd = Quests[q];
-      return qd && qd.type === 'side';
-    });
+    const activeMain = state.quests.active.filter(q => Quests[q] && Quests[q].type === 'main');
+    const activeSide = state.quests.active.filter(q => Quests[q] && Quests[q].type === 'side');
 
+    // 进行中主线
     if (activeMain.length > 0) {
-      const header = document.createElement('div');
-      header.style.cssText = 'color:#c0a050;font-size:13px;font-weight:bold;margin:10px 0 5px;letter-spacing:2px;';
-      header.textContent = '◆ 主线任务';
-      list.appendChild(header);
-
-      for (const qid of activeMain) {
-        list.appendChild(this.createQuestItem(qid, false));
-      }
+      list.appendChild(this.createQuestSection('◆ 主线任务', 'main', activeMain.length));
+      for (const qid of activeMain) list.appendChild(this.createQuestItem(qid, false));
     }
 
+    // 进行中支线
     if (activeSide.length > 0) {
-      const header = document.createElement('div');
-      header.style.cssText = 'color:#70a0d0;font-size:13px;font-weight:bold;margin:10px 0 5px;letter-spacing:2px;';
-      header.textContent = '◇ 支线任务';
-      list.appendChild(header);
+      list.appendChild(this.createQuestSection('◇ 支线任务', 'side', activeSide.length));
+      for (const qid of activeSide) list.appendChild(this.createQuestItem(qid, false));
+    }
 
-      for (const qid of activeSide) {
-        list.appendChild(this.createQuestItem(qid, false));
-      }
+    // 空状态
+    if (activeMain.length === 0 && activeSide.length === 0 && state.quests.completed.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'quest-empty';
+      empty.innerHTML = '🗒️<br>暂无进行中的任务<br><span>推进剧情以获取新任务</span>';
+      list.appendChild(empty);
     }
 
     // 已完成
     if (state.quests.completed.length > 0) {
-      const header = document.createElement('div');
-      header.style.cssText = 'color:#50a070;font-size:13px;font-weight:bold;margin:10px 0 5px;letter-spacing:2px;';
-      header.textContent = '✓ 已完成';
-      list.appendChild(header);
-
-      for (const qid of state.quests.completed.slice().reverse()) {
-        list.appendChild(this.createQuestItem(qid, true));
-      }
+      list.appendChild(this.createQuestSection('✓ 已完成', 'done', state.quests.completed.length));
+      const recent = state.quests.completed.slice().reverse().slice(0, 6);
+      for (const qid of recent) list.appendChild(this.createQuestItem(qid, true));
     }
+  },
+
+  createQuestSection(title, kind, count) {
+    const header = document.createElement('div');
+    header.className = 'quest-section ' + kind;
+    header.innerHTML = `<span>${title}</span><span class="quest-count">${count}</span>`;
+    return header;
   },
 
   createQuestItem(qid, completed) {
@@ -152,12 +159,67 @@ const UI = {
     if (!q) return document.createElement('div');
 
     const div = document.createElement('div');
-    div.className = 'quest-item ' + (q.type === 'main' ? 'main' : '') + (completed ? ' completed' : '');
+    div.className = 'quest-item ' + (q.type === 'main' ? 'main' : 'side') + (completed ? ' completed' : '');
+
+    const badgeText = completed ? '✓' : (q.type === 'main' ? '主' : '支');
+    const chapterTag = completed ? '' : `<span class="quest-chapter">${this.questChapterName(q.chapter)}</span>`;
+
+    const reward = this.questReward(q);
+    const rewardHtml = completed
+      ? `<span class="quest-rewards got">奖励已领取</span>`
+      : `<span class="quest-rewards">📦 +${reward.supplies} &nbsp;⭐ +${reward.morale}</span>`;
+
     div.innerHTML = `
-      <div class="quest-title">${q.title}</div>
-      <div class="quest-desc">${completed ? '已完成' : q.objective}</div>
+      <div class="quest-left">
+        <div class="quest-badge">${badgeText}</div>
+        <div class="quest-status-line"></div>
+      </div>
+      <div class="quest-body">
+        <div class="quest-head">
+          <span class="quest-title">${q.title}</span>${chapterTag}
+        </div>
+        <div class="quest-desc">${completed ? '—— 已完成 ——' : q.desc}</div>
+        ${completed ? '' : `<div class="quest-objective"><span class="obj-dot"></span>${q.objective}</div>`}
+        ${rewardHtml}
+      </div>
     `;
     return div;
+  },
+
+  // 任务完成横幅（全屏庆祝）
+  showQuestBanner(title, reward) {
+    const old = document.getElementById('quest-banner');
+    if (old) old.remove();
+
+    const banner = document.createElement('div');
+    banner.id = 'quest-banner';
+    banner.innerHTML = `
+      <div class="banner-inner">
+        <div class="banner-check">✓</div>
+        <div class="banner-label">任务完成</div>
+        <div class="banner-title">${title}</div>
+        <div class="banner-reward">📦 补给 +${reward.supplies || 20} &nbsp;&nbsp;⭐ 士气 +${reward.morale || 5}</div>
+      </div>
+    `;
+    document.getElementById('game-container').appendChild(banner);
+
+    // 金色粒子
+    for (let i = 0; i < 36; i++) {
+      Engine.spawnParticle(
+        480 + (Math.random() - 0.5) * 300,
+        320 + (Math.random() - 0.5) * 160,
+        (Math.random() - 0.5) * 160,
+        -Math.random() * 120,
+        Math.random() > 0.5 ? '#e8c860' : '#f0e0a0',
+        3, 1.2
+      );
+    }
+
+    setTimeout(() => banner.classList.add('show'), 30);
+    setTimeout(() => {
+      banner.classList.remove('show');
+      setTimeout(() => banner.remove(), 600);
+    }, 2600);
   },
 
   // ===== 队伍面板 =====
@@ -424,6 +486,18 @@ const StoryEngine = {
         this.nextNode();
         break;
 
+      case 'explore':
+        // 平面探索模式：WASD 自由移动
+        UI.hideDialog();
+        this.showingDialogue = false;
+        this.currentSpeaker = null;
+        Explore.start(node, (next) => {
+          Engine.gameMode = 'story';
+          if (next) this.gotoScene(next);
+          else this.nextNode();
+        });
+        break;
+
       case 'return-title':
         UI.hideDialog();
         this.showingDialogue = false;
@@ -501,9 +575,11 @@ const StoryEngine = {
       Game.state.quests.active.push(qid);
       const q = Quests[qid];
       if (q) {
-        UI.toast(`📋 新任务：${q.title}`);
+        UI.toast(`📋 新任务：${q.title}`, 3200);
+        // 面板若打开则刷新
+        const panel = document.getElementById('quest-panel');
+        if (panel && !panel.classList.contains('hidden')) UI.updateQuestPanel();
       }
-      UI.updateQuestPanel();
     }
   },
 
@@ -514,10 +590,10 @@ const StoryEngine = {
       Game.state.quests.completed.push(qid);
       const q = Quests[qid];
       if (q) {
-        UI.toast(`✓ 任务完成：${q.title}`);
-        // 奖励
-        Game.state.resources.supplies += 20;
-        Game.state.resources.morale = Math.min(100, Game.state.resources.morale + 5);
+        const reward = UI.questReward(q);
+        Game.state.resources.supplies += reward.supplies || 20;
+        Game.state.resources.morale = Math.min(100, Game.state.resources.morale + (reward.morale || 5));
+        UI.showQuestBanner(q.title, reward);
       }
       UI.updateQuestPanel();
     }
