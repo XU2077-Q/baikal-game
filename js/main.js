@@ -34,6 +34,24 @@ const Game = {
         return;
       }
 
+      // 平面探索模式：WASD 移动（由 Input 记录 / Explore.update 读取）
+      if (Engine.gameMode === 'explore') {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          Explore.advance();
+        }
+        if (e.key === 'q' || e.key === 'Q') {
+          this.toggleQuests();
+        }
+        if (e.key === 'e' || e.key === 'E') {
+          this.toggleParty();
+        }
+        if (e.key === 'Escape') {
+          this.toggleMenu();
+        }
+        return;
+      }
+
       // 剧情模式
       if (Engine.gameMode === 'story' && !StoryEngine.paused) {
         if (e.key === ' ' || e.key === 'Enter') {
@@ -43,14 +61,13 @@ const Game = {
         if (e.key === 'q' || e.key === 'Q') {
           this.toggleQuests();
         }
-        if (e.key === 'w' || e.key === 'W') {
+        if (e.key === 'e' || e.key === 'E' || e.key === 'w' || e.key === 'W') {
           this.toggleParty();
         }
         if (e.key === 'm' || e.key === 'M') {
           this.toggleMap();
         }
       }
-
       // ESC
       if (e.key === 'Escape') {
         if (document.getElementById('main-menu').classList.contains('hidden')) {
@@ -169,6 +186,8 @@ const Game = {
   },
 
   returnToTitle() {
+    // 结束探索模式
+    if (Explore.active) Explore.stop();
     // 关闭所有面板
     document.getElementById('main-menu').classList.add('hidden');
     document.getElementById('quest-panel').classList.add('hidden');
