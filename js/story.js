@@ -119,23 +119,8 @@ const Story = {
       { type: 'narrative', text: '安娜扶正了俱乐部门口的两块牌子，牌子上写着「坚持宵衣旰食，抵制醉生梦死」。安娜冷笑了一声，拉开门走了进去。' },
       { type: 'narrative', text: '天刚蒙蒙亮，俱乐部却如同白昼一般。酒盏碰击的声音和军官、士兵毫无顾忌的大笑声混在一起。俱乐部里没有钟表已经是一个不成文的规定了。' },
       { type: 'narrative', text: '安娜绕开一个浑身散发着酒气的士兵，走进了俱乐部的仓库。她的工作就是清点与核算——一个无聊的工作。她曾经想辞掉这个工作，但老安德烈劝她说待在这里或许会有大用处，她便一直待了下来。' },
-      { type: 'dialogue', speaker: '叶菲姆', text: '姐，今天来的这么早啊，要不要喝杯咖啡？' },
-      { type: 'narrative', text: '是叶菲姆·格拉西莫夫。前几个月刚来上班的小伙子，人很朴实勤快，未脱稚气的脸上刚刚显出几分英俊。' },
-      { type: 'dialogue', speaker: '安娜', text: '谢谢你，不过我不困。倒是你两眼发黑，昨天晚上又和哪个姑娘幽会去啦？我给你的申请表，你仔细看过了吗？' },
-      { type: 'dialogue', speaker: '叶菲姆', text: '我没有……那个组织嘛，我再考虑考虑。姐，你难道是这个组织的领导，怎么老跟我做宣传工作？' },
-      { type: 'narrative', text: '安娜第一次听见别人叫自己领导，扑哧一声笑了。' },
-      { type: 'dialogue', speaker: '安娜', text: '叶菲姆啊，我顶多就是个做宣传工作的。不过借你吉言啦！' },
-      { type: 'narrative', text: '叶菲姆觉得她绽放笑容的那一刻美得像天使。' },
-      { type: 'dialogue', speaker: '安娜', text: '不过呢，我们今晚有一个组织内的聚会，不知道你能否来参加。你才16岁，总不会是NKVD的人吧。' },
-      { type: 'quest-add', quest: 'q_invite_efim' },
-      { type: 'choice',
-        text: '如何邀请叶菲姆？',
-        options: [
-          { label: '热情地鼓励他', next: 'ch1_03_a', flag: 'efim_attitude=positive' },
-          { label: '冷静地讲道理', next: 'ch1_03_b', flag: 'efim_attitude=neutral' },
-          { label: '不勉强他', next: 'ch1_03_c', flag: 'efim_attitude=low' },
-        ]
-      },
+      { type: 'narrative', text: '仓库里还很安静。晨光从高窗斜落进来，照在一排排货架上。' },
+      { type: 'transition', target: 'ch1_02e', effect: 'fade', wait: 600 },
     ]
   },
 
@@ -201,7 +186,7 @@ const Story = {
       { type: 'narrative', text: '封好信时，屋外的雪下得愈发紧切。安娜关上台灯，戴上父亲送她的小毡帽，拿起谱子和信封，拉开门钻进了雪里。大雪密密簌簌地落下，不久便掩盖了她去时的足迹。' },
       { type: 'quest-complete', quest: 'q_club_work' },
       { type: 'quest-add', quest: 'q_meeting' },
-      { type: 'transition', target: 'ch2_01', effect: 'fade', wait: 1500 },
+      { type: 'transition', target: 'ch2_00e', effect: 'fade', wait: 1500 },
     ]
   },
 
@@ -318,7 +303,7 @@ const Story = {
       { type: 'dialogue', speaker: '萨布林', text: '四十五年前，阿芙乐尔号的炮声宣告了一个时代。今晚——让广播塔的电波，宣告另一个时代。' },
       { type: 'quest-complete', quest: 'q_kvkd_raid' },
       { type: 'quest-add', quest: 'q_radio_tower' },
-      { type: 'transition', target: 'ch3_01', effect: 'fade', wait: 2000 },
+      { type: 'transition', target: 'ch3_00e', effect: 'fade', wait: 2000 },
     ]
   },
 
@@ -381,7 +366,7 @@ const Story = {
       { type: 'quest-complete', quest: 'q_radio_tower' },
       { type: 'quest-complete', quest: 'q_buryatia_founded' },
       { type: 'quest-add', quest: 'q_irkutsk_offensive' },
-      { type: 'transition', target: 'ch4_01', effect: 'fade', wait: 2000 },
+      { type: 'transition', target: 'ch4_00e', effect: 'fade', wait: 2000 },
     ]
   },
 
@@ -433,7 +418,7 @@ const Story = {
       { type: 'dialogue', speaker: '萨布林', text: '传我的话给全体指战员：我们的革命，从来不只是俄罗斯一家的事。' },
       { type: 'quest-complete', quest: 'q_irkutsk_offensive' },
       { type: 'quest-add', quest: 'q_east_red' },
-      { type: 'transition', target: 'ch5_01', effect: 'fade', wait: 2000 },
+      { type: 'transition', target: 'ch5_00e', effect: 'fade', wait: 2000 },
     ]
   },
 
@@ -464,7 +449,7 @@ const Story = {
       { type: 'narrative', text: '而在世界的另一头，德国人的「东方专员辖区」正在燃烧——被萨布林的红军点燃。' },
       { type: 'quest-complete', quest: 'q_east_red' },
       { type: 'quest-add', quest: 'q_unification' },
-      { type: 'transition', target: 'ch6_01', effect: 'fade', wait: 2000 },
+      { type: 'transition', target: 'ch6_00e', effect: 'fade', wait: 2000 },
     ]
   },
 
@@ -572,6 +557,76 @@ const Story = {
       { type: 'quest-complete', quest: 'q_2wrw' },
       { type: 'narrative', text: '【全剧终】\n\n《贝加尔湖畔》· Lake Baikal\n\n改编自同名小说\n融合 TNO: The New Order 正史、\n「东方红」「第二次西俄战争」子模组设定\n\n感谢游玩\n\n苏维埃万岁。' },
       { type: 'return-title' },
+    ]
+  },
+
+  // ======== 探索场景 · WASD 自由移动 ========
+
+  // 第一章 · 仓库（与叶菲姆交谈 → 邀请选择）
+  ch1_02e: {
+    chapter: 1,
+    pov: 'anna',
+    chapterTitle: '第一章 · 仓库里的清晨',
+    nodes: [
+      { type: 'narrative', text: '（使用 WASD 或方向键移动，靠近人物按空格交谈。）' },
+      { type: 'quest-add', quest: 'q_club_work' },
+      { type: 'quest-add', quest: 'q_invite_efim' },
+      { type: 'explore', map: 'club_warehouse_day', spawn: [2, 18], next: 'ch1_04', completeOnExit: ['q_club_work'] },
+    ]
+  },
+
+  // 第二章 · 大会筹备
+  ch2_00e: {
+    chapter: 2,
+    pov: 'anna',
+    nodes: [
+      { type: 'scene-set', scene: 'bunker_hall' },
+      { type: 'narrative', text: '上乌金斯克郊外，地下五十米。代表们陆续抵达，大会开幕前，还有些事情要确认。' },
+      { type: 'explore', map: 'bunker_prepare', spawn: [15, 18], next: 'ch2_01' },
+    ]
+  },
+
+  // 第三章 · 广播塔集结（夜）
+  ch3_00e: {
+    chapter: 3,
+    pov: 'sablin',
+    nodes: [
+      { type: 'scene-set', scene: 'radio_tower' },
+      { type: 'narrative', text: '午夜。上乌金斯克广播塔下的林地里，起义者们屏息集结。进攻发起前，再去看看同志们。' },
+      { type: 'explore', map: 'radio_staging', spawn: [2, 2], next: 'ch3_01' },
+    ]
+  },
+
+  // 第四章 · 伊尔库茨克前线
+  ch4_00e: {
+    chapter: 4,
+    pov: 'anna',
+    nodes: [
+      { type: 'scene-set', scene: 'irkutsk' },
+      { type: 'narrative', text: '伊尔库茨克城郊，前进阵地。总攻发起在即——各纵队都已进入位置。' },
+      { type: 'explore', map: 'irkutsk_front', spawn: [2, 18], next: 'ch4_01' },
+    ]
+  },
+
+  // 第五章 · 铁路会让站（中国线）
+  ch5_00e: {
+    chapter: 5,
+    pov: 'lyupasha',
+    nodes: [
+      { type: 'scene-set', scene: 'snow_street' },
+      { type: 'narrative', text: '西伯利亚大铁路，某个会让站。来自东方的列车即将进站——新世界的信使正在路上。' },
+      { type: 'explore', map: 'train_station', spawn: [4, 6], next: 'ch5_01' },
+    ]
+  },
+
+  // 第六章 · 统一战争前夕
+  ch6_00e: {
+    chapter: 6,
+    pov: 'sablin',
+    nodes: [
+      { type: 'scene-set', scene: 'snow_street' },
+      { type: 'narrative', text: '伊尔库茨克，红军总指挥部。统一战争的号角即将吹响——出发前，听听同志们的报告。' },
+      { type: 'explore', map: 'hq_command', spawn: [15, 18], next: 'ch6_01' },
     ]
   },
 };
