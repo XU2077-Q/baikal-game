@@ -63,10 +63,31 @@ const ExploreMaps = {
     ],
     spawn: [2, 18],
     exit: { x: 30, y: 19 },
+    pickName: '申请表',
+    pickVerb: '收集',
+    pickups: [
+      { x: 14, y: 9, icon: '📄', name: '申请表·压在琴谱下' },
+      { x: 24, y: 7, icon: '📄', name: '申请表·货架夹层' },
+      { x: 16, y: 3, icon: '📄', name: '申请表·军官脚边（小心）' },
+    ],
+    interacts: [
+      {
+        x: 14, y: 10, icon: '🎹', name: '钢琴', verb: '试弹', required: false,
+        lines: [
+          { speaker: '安娜（内心）', text: '（趁没人注意，掀开琴盖试了几个音——还好，没有走音。）' },
+          { speaker: '安娜（内心）', text: '（周五的会场，就用它了。到那时，这架琴要替我们说出所有说不出的话。）' },
+        ],
+      },
+    ],
     npcs: [
       {
         id: 'efim', char: 'efim', name: '叶菲姆', avatar: '🔧', color: '#7aa86a',
         x: 13, y: 8, required: true, quest: 'q_invite_efim',
+        gatePickups: true,
+        gateLines: [
+          { speaker: '叶菲姆', text: '姐，你脸色不对——手里的事还没忙完吧？三份申请表一张都还没见到呢。' },
+          { speaker: '安娜（内心）', text: '（老安德烈说：一张压在钢琴琴谱下，一张夹在东边货架里，还有一张在楼上那位"长官"脚边——先去拿齐。）' },
+        ],
         dialogue: [
           { speaker: '叶菲姆', text: '姐，今天来的这么早啊，要不要喝杯咖啡？' },
           { speaker: '安娜', text: '谢谢你，不过我不困。倒是你两眼发黑，昨天晚上又和哪个姑娘幽会去啦？我给你的申请表，你仔细看过了吗？' },
@@ -88,6 +109,7 @@ const ExploreMaps = {
         x: 5, y: 4, required: false,
         dialogue: [
           { speaker: '老安德烈', text: '安娜，今天的账目交给叶菲姆那小子就行。你呀，去把钢琴的事惦记着。' },
+          { speaker: '老安德烈', text: '对了，昨晚收了三份入会申请表，我随手搁的——一张压在钢琴琴谱下面，一张夹在东边货架里，还有一张……唉，记性坏了，好像落在楼上那位"长官"脚边了。' },
           { speaker: '老安德烈', text: '这地方鱼龙混杂，说话小心。墙……有时候是长着耳朵的。' },
         ],
       },
@@ -147,12 +169,33 @@ const ExploreMaps = {
     ],
     spawn: [15, 18],
     exit: { x: 30, y: 19 },
+    intName: '信号灯',
+    intVerb: '点亮',
+    interacts: [
+      {
+        x: 6, y: 3, lamp: true, verb: '点亮', name: '西北角信号灯',
+        lines: [{ speaker: '安娜（内心）', text: '（火柴划亮，灯芯"噗"地接住了光。西北角，第一盏。）' }],
+      },
+      {
+        x: 25, y: 3, lamp: true, verb: '点亮', name: '东北角信号灯',
+        lines: [{ speaker: '安娜（内心）', text: '（灯焰先是颤抖，随后稳稳地立住——东北角，第二盏。代表们的座位被照出一片暖色。）' }],
+      },
+      {
+        x: 6, y: 15, lamp: true, verb: '点亮', name: '西南角信号灯',
+        lines: [{ speaker: '安娜（内心）', text: '（这盏老油灯的底座上，不知谁刻了一颗小小的五角星。西南角，第三盏。）' }],
+      },
+      {
+        x: 25, y: 15, lamp: true, verb: '点亮', name: '东南角信号灯',
+        lines: [{ speaker: '安娜（内心）', text: '（最后一盏亮起。从高处看，它们像落在地上的四颗星——会场，就绪。）' }],
+      },
+    ],
     npcs: [
       {
         id: 'andrei', char: 'andrei', name: '老安德烈', avatar: '👴', color: '#8a7a5a',
         x: 15, y: 16, required: true,
         dialogue: [
           { speaker: '老安德烈', text: '安娜！长椅要再检查一遍，代表们马上就到了。' },
+          { speaker: '老安德烈', text: '还有个麻烦——电路员被大雪堵在路上了。会场四角的信号灯，得麻烦你去点亮。灯亮着，代表们才认得路。' },
           { speaker: '老安德烈', text: '今晚的大会，将决定我们是从一盘散沙，变成一块铁。三十年了……我等这一天等了三十年。' },
           { speaker: '安娜', text: '老安德烈，钢琴已经调好了。只要大会需要，《国际歌》随时可以响起。' },
         ],
@@ -221,12 +264,41 @@ const ExploreMaps = {
     ],
     spawn: [2, 2],
     exit: { x: 30, y: 18 },
+    intName: '机枪阵地',
+    intVerb: '检查',
+    patrols: [
+      {
+        path: [[10, 8], [22, 8], [22, 13], [10, 13]],
+        loop: true, speed: 55, vision: 105, name: 'NKVD哨兵',
+      },
+    ],
+    interacts: [
+      {
+        x: 4, y: 6, icon: '🔫', verb: '检查', name: '西北机枪阵地',
+        lines: [
+          { speaker: null, text: '（沙袋垒得结实，弹链已经上膛。你压低身形，借着雪光核对射界——合格。）' },
+        ],
+      },
+      {
+        x: 22, y: 6, icon: '🔫', verb: '检查', name: '东北机枪阵地',
+        lines: [
+          { speaker: null, text: '（枪管的油布裹得妥帖，射手就位后只需剪断绳索。合格。）' },
+        ],
+      },
+      {
+        x: 18, y: 14, icon: '🔫', verb: '检查', name: '南侧机枪阵地',
+        lines: [
+          { speaker: null, text: '（这是封锁南面来路的关键一挺。你贴着沙袋爬过去，指尖摸到冰冷的枪身——击针完好，合格。）' },
+        ],
+      },
+    ],
     npcs: [
       {
         id: 'efim', char: 'efim', name: '叶菲姆', avatar: '🔧', color: '#7aa86a',
         x: 12, y: 7, required: true,
         dialogue: [
           { speaker: '叶菲姆', text: '政委同志！机枪组已经就位，就在那排沙袋后面。' },
+          { speaker: '叶菲姆', text: '不过要小心——林子那头还有个 NKVD 哨兵在巡逻，眼睛毒得很，被他照见就得退回重来。三个机枪阵地，趁他背过身的时候逐一确认。' },
           { speaker: '叶菲姆', text: '三年前你把我从俱乐部里"拐"出来的时候，我可没想到会有今天。今晚过后，全俄国都会听到我们的声音！' },
           { speaker: '萨布林', text: '不是我的声音，叶菲姆。是我们的声音。' },
         ],
@@ -285,12 +357,37 @@ const ExploreMaps = {
     ],
     spawn: [2, 18],
     exit: { x: 29, y: 17 },
+    ammoMode: true,
+    pickName: '弹药箱',
+    pickVerb: '收集',
+    intName: '机枪阵地',
+    intVerb: '补给',
+    pickups: [
+      { x: 9, y: 8, icon: '📦', name: '弹药箱·补给堆旁', carry: 1 },
+      { x: 18, y: 9, icon: '📦', name: '弹药箱·沙袋后', carry: 1 },
+      { x: 24, y: 14, icon: '📦', name: '弹药箱·焦土上', carry: 1 },
+    ],
+    interacts: [
+      {
+        x: 4, y: 6, icon: '🔫', verb: '补给', name: '西北机枪阵地', need: 'ammo',
+        lines: [{ speaker: null, text: '（你把弹链一节节压进受弹机，拉动枪栓——"咔哒"。钢铁苏醒了。）' }],
+      },
+      {
+        x: 24, y: 6, icon: '🔫', verb: '补给', name: '东北机枪阵地', need: 'ammo',
+        lines: [{ speaker: null, text: '（弹药箱的木盖被冻住了，你用手肘磕开，把弹链送进枪膛。好了，最后一箱也到位。）' }],
+      },
+      {
+        x: 22, y: 15, icon: '🔫', verb: '补给', name: '前哨机枪阵地', need: 'ammo',
+        lines: [{ speaker: null, text: '（这是离城墙最近的一挺。装填完毕，射手朝你比了个大拇指。）' }],
+      },
+    ],
     npcs: [
       {
         id: 'sablin', char: 'sablin', name: '萨布林', avatar: '⭐', color: '#c8a850',
         x: 15, y: 5, required: true,
         dialogue: [
           { speaker: '萨布林', text: '同志们！伊尔库茨克就在眼前——亚戈达那帮蛀虫最后的老巢！' },
+          { speaker: '萨布林', text: '安娜，进攻前最后一件差事：后勤的弹药箱散了三处，找齐它们，给三处机枪阵地都补上弹。没有弹链的机枪，只是铁管子。' },
           { speaker: '萨布林', text: '城里的工人已经罢工，炮兵营宣布起义。我们现在要做的，就是推开门，把这个腐朽的"苏联"送进坟墓！' },
           { speaker: '萨布林', text: '前进，为了贝加尔湖，为了所有的亡灵，为了那面真正干净的旗！' },
         ],
@@ -349,12 +446,31 @@ const ExploreMaps = {
     ],
     spawn: [4, 6],
     exit: { x: 30, y: 17 },
+    timer: 100,
+    onTimeout: '⏰ 列车误点了……准时奖励已错过，但接应的活还得干完！',
+    intName: '车厢',
+    intVerb: '检查',
+    interacts: [
+      {
+        x: 6, y: 9, icon: '📻', verb: '检查', name: '一号车厢·电台',
+        lines: [{ speaker: null, text: '（电台完好，封条未动。押运员低声说：装好它，谎言就再也盖不住这片土地。）' }],
+      },
+      {
+        x: 14, y: 13, icon: '💊', verb: '检查', name: '二号车厢·药品',
+        lines: [{ speaker: null, text: '（药品箱码得整整齐齐：磺胺、奎宁、纱布——够前线的手术室撑过整个冬天。）' }],
+      },
+      {
+        x: 26, y: 13, icon: '🚩', verb: '检查', name: '三号车厢·东方的货物',
+        lines: [{ speaker: null, text: '（掀开帆布：一面崭新的红旗，还有西北捎来的一包茶叶。茶香混着雪味，像家。）' }],
+      },
+    ],
     npcs: [
       {
         id: 'braun', char: 'braun', name: '布劳恩', avatar: '🌍', color: '#7a8a9a',
         x: 8, y: 9, required: true,
         dialogue: [
           { speaker: '布劳恩', text: '罗曼诺娃同志！列车还有二十分钟进站。车上有西北来的同志——还有药品、电台，和一份重要的消息。' },
+          { speaker: '布劳恩', text: '趁停车窗口，快去把三节车厢的货都点验一遍——司机只肯等我们这么久，一分钟都别耽误！' },
           { speaker: '布劳恩', text: '中国正在变天。西北的那支队伍，已经把红旗插到了黄河边上。新世界的地图，要重新画了。' },
         ],
       },
@@ -414,12 +530,41 @@ const ExploreMaps = {
     ],
     spawn: [15, 18],
     exit: { x: 30, y: 18 },
+    intName: '指挥环节',
+    intVerb: '完成',
+    interacts: [
+      {
+        x: 6, y: 7, icon: '📻', verb: '收听', name: '电台·前线战报', seq: 1,
+        hintBusy: '（先收听电台的前线战报，才有下一步。）',
+        lines: [
+          { speaker: null, text: '（"……第一集团军已渡河，先头部队距城十六公里……"静电杂音里，前线的声音一个字一个字地敲在心上。）' },
+          { speaker: null, text: '（你把三份战报的要点抄在纸上。态势：清楚了。）' },
+        ],
+      },
+      {
+        x: 18, y: 9, icon: '🗺️', verb: '确认', name: '战略地图', seq: 2,
+        hintBusy: '（战况不明，图上钉不住一枚图钉——先去收听电台战报。）',
+        lines: [
+          { speaker: null, text: '（你依着战报，把代表红军的小旗一面面推上地图。木刺扎进软木的声音，像行军的鼓点。）' },
+          { speaker: null, text: '（三面合围，网口收拢。态势图：完成。）' },
+        ],
+      },
+      {
+        x: 22, y: 12, icon: '☎️', verb: '联系', name: '野战电话', seq: 3,
+        hintBusy: '（各纵队还没接到统一口径——按规矩来：先电台，再地图，最后电话。）',
+        lines: [
+          { speaker: null, text: '（摇柄转动，话筒里涌来接线员的电流声。你一字一顿："总攻时刻，照计划执行。"）' },
+          { speaker: null, text: '（听筒那头，三个纵队先后回了同一个词："明白。"）' },
+        ],
+      },
+    ],
     npcs: [
       {
         id: 'pechuro', char: 'pechuro', name: '佩楚罗', avatar: '📚', color: '#a08ac0',
         x: 15, y: 6, required: true,
         dialogue: [
           { speaker: '佩楚罗', text: '萨布林同志，政府的命令已经签署：战争总动员。从今天起，整个俄罗斯的命运，就在这张桌子上。' },
+          { speaker: '佩楚罗', text: '参谋部有规矩：先收听电台的前线战报，再确认战略地图，最后用野战电话向各纵队下令。一步都不能乱。' },
           { speaker: '佩楚罗', text: '我在劳改营里熬了十年，就是为了能看到今天——亲手把侵略者赶出去的这一天。' },
         ],
       },
@@ -461,11 +606,23 @@ const Explore = {
   dialogueQueue: [],
   currentItem: null,
   currentNpc: null,
+  currentInteract: null,
   waitingChoice: false,
   onExit: null,
   node: null,
   hintTimer: 7000,
   speed: 150,
+  // 任务化机制
+  pickups: [],        // 拾取物（申请表/弹药箱）
+  interacts: [],       // 可调查物件（油灯/阵地/车厢/电台）
+  patrols: [],        // 巡逻哨兵（视锥检测）
+  spawnPx: null,      // 出生点像素坐标（被哨兵发现后送回）
+  carried: 0,          // 携带物（弹药）
+  spottedCount: 0,     // 被发现次数
+  timeLimit: 0,        // 限时（秒）
+  timeLeft: 0,
+  timedOut: false,
+  gatedTalk: false,    // 门槛提示对话中
 
   start(node, onExit) {
     this.node = node;
@@ -502,6 +659,30 @@ const Explore = {
       talked: false,
     }));
 
+    // 拾取物 / 可调查物件 / 巡逻哨兵（快照）
+    this.pickups = (def.pickups || []).map(p => ({
+      ...p, px: p.x * TILE + TILE / 2, py: p.y * TILE + TILE / 2, taken: false,
+    }));
+    this.interacts = (def.interacts || []).map(i => ({
+      ...i, px: i.x * TILE + TILE / 2, py: i.y * TILE + TILE / 2, done: false,
+    }));
+    this.patrols = (def.patrols || []).map(p => {
+      const [x0, y0] = p.path[0];
+      return {
+        ...p,
+        px: x0 * TILE + TILE / 2, py: y0 * TILE + TILE / 2,
+        wpi: 1, angle: 0, frame: 0, frameTimer: 0, moving: true,
+      };
+    });
+
+    this.spawnPx = { x: this.player.x, y: this.player.y };
+    this.carried = 0;
+    this.spottedCount = 0;
+    this.gatedTalk = false;
+    this.timeLimit = def.timer || 0;
+    this.timeLeft = def.timer || 0;
+    this.timedOut = false;
+
     this.talkedRequired = [];
     this.exitOpen = false;
     this.dialogueActive = false;
@@ -513,7 +694,13 @@ const Explore = {
     this.active = true;
     Engine.gameMode = 'explore';
     UI.toast(`🗺️ ${def.name}`, 2500);
-    this.showHint('WASD / 方向键 移动 · 空格 交谈');
+    if (def.timer) {
+      UI.toast(`⏰ 限时 ${def.timer} 秒！`, 2500);
+    } else if ((def.pickups || []).length + (def.interacts || []).length + (def.patrols || []).length > 0) {
+      this.showHint('WASD 移动 · 靠近发光物按空格交互');
+    } else {
+      this.showHint('WASD / 方向键 移动 · 空格 交谈');
+    }
   },
 
   stop() {
@@ -575,6 +762,19 @@ const Explore = {
       this.player.frame = 0;
     }
 
+    // 巡逻哨兵：移动 + 视锥检测
+    if (this.patrols.length) this.updatePatrols(dt);
+
+    // 限时
+    if (this.timeLimit > 0 && !this.timedOut && !this.exitOpen) {
+      this.timeLeft -= dt;
+      if (this.timeLeft <= 0) {
+        this.timeLeft = 0;
+        this.timedOut = true;
+        if (this.map.onTimeout) UI.toast(this.map.onTimeout, 3000);
+      }
+    }
+
     // 出口检测
     const ex = this.map.exit;
     const ptx = Math.floor(this.player.x / TILE);
@@ -627,14 +827,146 @@ const Explore = {
     return best;
   },
 
+  // ===== 巡逻哨兵 =====
+  updatePatrols(dt) {
+    for (const p of this.patrols) {
+      const [tx, ty] = p.path[p.wpi];
+      const tpx = tx * TILE + TILE / 2, tpy = ty * TILE + TILE / 2;
+      const dx = tpx - p.px, dy = tpy - p.py;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 2) {
+        // 到达 waypoint：循环或往返
+        if (p.loop) p.wpi = (p.wpi + 1) % p.path.length;
+        else {
+          if (p.wpi + p.dir >= p.path.length || p.wpi + p.dir < 0) p.dir = -p.dir;
+          p.wpi += p.dir;
+        }
+      } else {
+        const sp = p.speed || 55;
+        p.px += (dx / dist) * sp * dt;
+        p.py += (dy / dist) * sp * dt;
+        p.angle = Math.atan2(dy, dx);
+        p.frameTimer += dt;
+        if (p.frameTimer > 0.16) { p.frameTimer = 0; p.frame = (p.frame + 1) % 4; }
+      }
+      // 视锥检测：距离 + 前方扇形
+      const pdx = this.player.x - p.px, pdy = this.player.y - p.py;
+      const pd = Math.hypot(pdx, pdy);
+      if (pd < (p.vision || 100)) {
+        let diff = Math.abs(Math.atan2(pdy, pdx) - p.angle);
+        if (diff > Math.PI) diff = Math.PI * 2 - diff;
+        if (diff < 0.95) this.spottedBy(p);
+      }
+    }
+  },
+
+  spottedBy(p) {
+    // 触发冷却，避免连续触发
+    const now = performance.now();
+    if (!this._spotCd) this._spotCd = 0;
+    if (now - this._spotCd < 1500) return;
+    this._spotCd = now;
+
+    this.spottedCount++;
+    Game.state.resources.morale = Math.max(0, (Game.state.resources.morale || 0) - 5);
+    UI.toast(`⚠ 被${p.name || '哨兵'}发现！撤回出发点（士气 -5）`, 2800);
+    this.player.x = this.spawnPx.x;
+    this.player.y = this.spawnPx.y;
+    // 红色警告闪烁
+    const flash = document.getElementById('danger-flash');
+    if (flash) {
+      flash.classList.remove('on');
+      void flash.offsetWidth;
+      flash.classList.add('on');
+    }
+    for (let i = 0; i < 14; i++) {
+      Engine.spawnParticle(
+        this.player.x, this.player.y,
+        (Math.random() - 0.5) * 150, (Math.random() - 0.5) * 150,
+        '#d05050', 3, 0.7
+      );
+    }
+  },
+
+  // ===== 拾取物 / 可调查物件 =====
+  nearestPickup() {
+    let best = null, bestD = 42 * 42;
+    for (const p of this.pickups) {
+      if (p.taken) continue;
+      const d = (this.player.x - p.px) ** 2 + (this.player.y - p.py) ** 2;
+      if (d < bestD) { bestD = d; best = p; }
+    }
+    return best;
+  },
+
+  nearestInteract() {
+    let best = null, bestD = 48 * 48;
+    for (const it of this.interacts) {
+      if (it.done && it.once !== false) continue;
+      const d = (this.player.x - it.px) ** 2 + (this.player.y - it.py) ** 2;
+      if (d < bestD) { bestD = d; best = it; }
+    }
+    return best;
+  },
+
+  takePickup(pk) {
+    pk.taken = true;
+    if (pk.carry) this.carried += pk.carry;
+    UI.toast(`✦ 获得：${pk.name}`, 1800);
+    for (let i = 0; i < 10; i++) {
+      Engine.spawnParticle(
+        pk.px, pk.py,
+        (Math.random() - 0.5) * 100, -Math.random() * 90,
+        '#e8c860', 2.5, 0.7
+      );
+    }
+    this.checkExitOpen();
+  },
+
+  useInteract(it) {
+    // 顺序谜题：前序未完成
+    if (it.seq !== undefined) {
+      const pre = this.interacts.filter(o => o.seq !== undefined && o.seq < it.seq);
+      if (pre.some(o => !o.done)) {
+        UI.toast(it.hintBusy || '现在还顾不上这个……', 1700);
+        return;
+      }
+    }
+    // 需要携带弹药
+    if (it.need === 'ammo' && this.carried < 1) {
+      UI.toast('⚠ 手上没有弹药——先去找弹药箱', 2000);
+      return;
+    }
+    this.currentInteract = it;
+    this.currentNpc = null;
+    this.dialogueQueue = (it.lines || []).slice();
+    this.dialogueActive = true;
+    this.player.moving = false;
+    if (!this.dialogueQueue.length) this.dialogueQueue.push({ speaker: null, text: it.name + '……' });
+    this.stepDialogue();
+  },
+
   updateNearHint() {
+    if (this.dialogueActive) return;
     const n = this.nearestNpc();
-    if (n && !this.dialogueActive) {
+    if (n) {
       this.showHint(`空格 · 与${n.required && !n.talked ? '★' : ''}${n.name}交谈`);
-    } else if (this.exitOpen) {
-      const ex = this.map.exit;
+      return;
+    }
+    const it = this.nearestInteract();
+    if (it) {
+      const verb = it.verb || '调查';
+      this.showHint(`空格 · ${verb}${it.name}`);
+      return;
+    }
+    const pk = this.nearestPickup();
+    if (pk) {
+      this.showHint(`空格 · 拾取${pk.name}`);
+      return;
+    }
+    if (this.exitOpen) {
       this.showHint(`目标完成 → 前往出口（右下发光处）`);
-    } else if (!this.dialogueActive) {
+    } else {
       this.hideHint();
     }
   },
@@ -643,11 +975,25 @@ const Explore = {
   tryInteract() {
     if (this.dialogueActive) return;
     const n = this.nearestNpc();
-    if (n) this.talkTo(n);
+    if (n) { this.talkTo(n); return; }
+    const it = this.nearestInteract();
+    if (it) { this.useInteract(it); return; }
+    const pk = this.nearestPickup();
+    if (pk) { this.takePickup(pk); }
   },
 
   talkTo(npc) {
     this.currentNpc = npc;
+    this.currentInteract = null;
+    // 任务门槛：要求的拾取物未集齐 → 提示对话（不计入交谈完成）
+    if (npc.gatePickups && this.pickups.some(p => !p.taken)) {
+      this.gatedTalk = true;
+      this.dialogueQueue = (npc.gateLines || []).slice();
+      this.dialogueActive = true;
+      this.player.moving = false;
+      this.stepDialogue();
+      return;
+    }
     this.dialogueQueue = (npc.dialogue || []).slice();
     this.dialogueActive = true;
     this.player.moving = false;
@@ -699,31 +1045,47 @@ const Explore = {
   },
 
   finishTalk() {
-    const npc = this.currentNpc;
     UI.hideDialog();
     this.dialogueActive = false;
+
+    // 物件调查结束
+    if (this.currentInteract) {
+      const it = this.currentInteract;
+      this.currentInteract = null;
+      it.done = true;
+      if (it.need === 'ammo') this.carried--;
+      if (it.give === 'ammo') this.carried += it.giveN || 1;
+      if (it.reward) {
+        const r = it.reward;
+        if (r.supplies) Game.state.resources.supplies += r.supplies;
+        if (r.morale) Game.state.resources.morale = Math.min(100, Game.state.resources.morale + r.morale);
+        UI.toast(`🎁 获得：补给 +${r.supplies || 0} · 士气 +${r.morale || 0}`, 2000);
+      }
+      for (let i = 0; i < 12; i++) {
+        Engine.spawnParticle(
+          it.px, it.py,
+          (Math.random() - 0.5) * 110, -Math.random() * 100,
+          it.lamp ? '#f0c060' : '#80d0e0', 3, 0.8
+        );
+      }
+      this.checkExitOpen();
+      return;
+    }
+
+    const npc = this.currentNpc;
     this.currentNpc = null;
     if (!npc) return;
+    // 门槛提示对话：不标记完成、不结算任务
+    if (this.gatedTalk) {
+      this.gatedTalk = false;
+      return;
+    }
     npc.talked = true;
 
     if (npc.quest) StoryEngine.completeQuest(npc.quest);
 
     if (npc.required && !this.talkedRequired.includes(npc.id)) {
       this.talkedRequired.push(npc.id);
-      const reqIds = this.npcs.filter(n => n.required).map(n => n.id);
-      if (reqIds.every(id => this.talkedRequired.includes(id))) {
-        this.exitOpen = true;
-        UI.toast('✦ 交谈目标完成！前往发光的出口', 3500);
-        // 出口烟花
-        const ex = this.map.exit;
-        for (let i = 0; i < 20; i++) {
-          Engine.spawnParticle(
-            ex.x * TILE + TILE / 2, ex.y * TILE + TILE / 2,
-            (Math.random() - 0.5) * 120, (Math.random() - 0.5) * 120,
-            '#e8c860', 3, 0.9
-          );
-        }
-      }
     }
 
     if (npc.reward) {
@@ -732,6 +1094,38 @@ const Explore = {
       if (r.morale) Game.state.resources.morale = Math.min(100, Game.state.resources.morale + r.morale);
       UI.toast(`🎁 获得：补给 +${r.supplies || 0} · 士气 +${r.morale || 0}`, 2200);
     }
+
+    this.checkExitOpen();
+  },
+
+  // 统一出口条件判定：交谈 + 拾取 + 调查（required 物件）
+  checkExitOpen() {
+    if (this.exitOpen) return;
+    const reqNpc = this.npcs.filter(n => n.required);
+    const talkOk = reqNpc.every(n => n.talked);
+    const pickOk = this.pickups.every(p => p.taken);
+    const intOk = this.interacts.filter(i => i.required !== false).every(i => i.done);
+    if (!talkOk || !pickOk || !intOk) return;
+
+    this.exitOpen = true;
+    // 限时 / 潜行 完成奖励
+    if (this.timeLimit > 0 && !this.timedOut) {
+      Game.state.resources.supplies += 40;
+      UI.toast('⏰ 准时完成！额外奖励：补给 +40', 2600);
+    }
+    if (this.patrols.length && this.spottedCount === 0) {
+      Game.state.resources.morale = Math.min(100, Game.state.resources.morale + 10);
+      UI.toast('✦ 全程未被哨兵发现！额外奖励：士气 +10', 2600);
+    }
+    UI.toast('✦ 全部目标完成！前往发光的出口', 3200);
+    const ex = this.map.exit;
+    for (let i = 0; i < 24; i++) {
+      Engine.spawnParticle(
+        ex.x * TILE + TILE / 2, ex.y * TILE + TILE / 2,
+        (Math.random() - 0.5) * 140, (Math.random() - 0.5) * 140,
+        '#e8c860', 3, 0.9
+      );
+    }
   },
 
   doExit() {
@@ -739,8 +1133,14 @@ const Explore = {
       const now = performance.now();
       if (now - this.exitWarned > 2500) {
         this.exitWarned = now;
-        const left = this.npcs.filter(n => n.required && !n.talked).length;
-        UI.toast(`还有 ${left} 位关键人物（!）未交谈`, 1800);
+        const missing = [];
+        const npcLeft = this.npcs.filter(n => n.required && !n.talked).length;
+        if (npcLeft) missing.push(`关键人物 ${npcLeft} 人`);
+        const pickLeft = this.pickups.filter(p => !p.taken).length;
+        if (pickLeft) missing.push(`${this.map.pickName || '物品'} ${pickLeft} 个`);
+        const intLeft = this.interacts.filter(i => i.required !== false && !i.done).length;
+        if (intLeft) missing.push(`${this.map.intName || '目标'} ${intLeft} 处`);
+        UI.toast(missing.length ? `还差：${missing.join(' · ')}` : '出口即将开启……', 2000);
       }
       return;
     }
@@ -759,6 +1159,9 @@ const Explore = {
 
     this.renderTiles(ctx, cam);
     this.renderExit(ctx);
+    this.renderInteracts(ctx);
+    this.renderPatrols(ctx);
+    this.renderPickups(ctx);
     this.renderActors(ctx);
     this.renderBubbles(ctx);
 
@@ -1103,6 +1506,131 @@ const Explore = {
     }
   },
 
+  // ===== 拾取物 / 物件 / 哨兵 渲染 =====
+  renderPickups(ctx) {
+    const t = Engine.elapsed;
+    for (const p of this.pickups) {
+      if (p.taken) continue;
+      const bob = Math.sin(t / 400 + p.px) * 3;
+      const pulse = 0.6 + Math.sin(t / 300) * 0.4;
+      const g = ctx.createRadialGradient(p.px, p.py + bob, 2, p.px, p.py + bob, 24);
+      g.addColorStop(0, `rgba(232,200,96,${0.30 * pulse})`);
+      g.addColorStop(1, 'rgba(232,200,96,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(p.px - 26, p.py + bob - 26, 52, 52);
+      ctx.font = '15px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(p.icon || '📄', p.px, p.py + bob + 5);
+    }
+  },
+
+  renderInteracts(ctx) {
+    const t = Engine.elapsed;
+    for (const it of this.interacts) {
+      const pulse = 0.6 + Math.sin(t / 280 + it.px) * 0.4;
+      if (it.lamp) {
+        // 油灯：柱 + 灯头（点亮后暖光）
+        ctx.fillStyle = '#2a2a34';
+        ctx.fillRect(it.px - 2, it.py - 6, 4, 22);
+        if (it.done) {
+          ctx.fillStyle = '#e8d090';
+          ctx.fillRect(it.px - 5, it.py - 10, 10, 6);
+          const g = ctx.createRadialGradient(it.px, it.py - 8, 4, it.px, it.py - 8, 70);
+          g.addColorStop(0, 'rgba(232,208,144,0.30)');
+          g.addColorStop(1, 'rgba(232,208,144,0)');
+          ctx.fillStyle = g;
+          ctx.fillRect(it.px - 72, it.py - 80, 144, 144);
+        } else {
+          ctx.fillStyle = '#4a4a52';
+          ctx.fillRect(it.px - 5, it.py - 10, 10, 6);
+          // 青色脉冲提示圈
+          ctx.strokeStyle = `rgba(120,200,220,${0.5 * pulse})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(it.px, it.py, 16 + Math.sin(t / 300) * 3, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      } else if (it.icon) {
+        // 通用物件：图标 + 脉冲圈
+        const bob = Math.sin(t / 450 + it.px) * 2;
+        if (!it.done) {
+          const g = ctx.createRadialGradient(it.px, it.py + bob, 2, it.px, it.py + bob, 22);
+          g.addColorStop(0, `rgba(120,200,220,${0.28 * pulse})`);
+          g.addColorStop(1, 'rgba(120,200,220,0)');
+          ctx.fillStyle = g;
+          ctx.fillRect(it.px - 24, it.py + bob - 24, 48, 48);
+        }
+        ctx.font = '15px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.globalAlpha = it.done ? 0.55 : 1;
+        ctx.fillText(it.icon, it.px, it.py + bob + 5);
+        if (it.done) {
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = '#5a7a5a';
+          ctx.font = 'bold 11px monospace';
+          ctx.fillText('✓', it.px + 11, it.py - 9 + bob);
+        }
+        ctx.globalAlpha = 1;
+      }
+    }
+  },
+
+  renderPatrols(ctx) {
+    const t = Engine.elapsed;
+    for (const p of this.patrols) {
+      // 视锥（朝向前方扇形）
+      const vis = p.vision || 100;
+      const half = 0.95;
+      ctx.fillStyle = 'rgba(200,70,70,0.13)';
+      ctx.beginPath();
+      ctx.moveTo(p.px, p.py);
+      ctx.arc(p.px, p.py, vis, p.angle - half, p.angle + half);
+      ctx.closePath();
+      ctx.fill();
+
+      // 哨兵本体（深色大衣 + 步枪 + 名牌）
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.beginPath();
+      ctx.ellipse(p.px, p.py + 10, 10, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      const leg = p.frame === 1 || p.frame === 3 ? 2 : (p.frame === 2 ? -1 : 0);
+      ctx.fillStyle = '#1c2030';
+      ctx.fillRect(p.px - 6, p.py + 2, 5, 8 + leg);
+      ctx.fillRect(p.px + 1, p.py + 2, 5, 8 - leg);
+      // 大衣（NKVD 深蓝）
+      ctx.fillStyle = '#2a3560';
+      ctx.fillRect(p.px - 7, p.py - 8, 14, 12);
+      ctx.fillStyle = 'rgba(255,255,255,0.08)';
+      ctx.fillRect(p.px - 7, p.py - 8, 14, 3);
+      // 帽（大檐帽）
+      ctx.fillStyle = '#1a2246';
+      ctx.fillRect(p.px - 6, p.py - 20, 12, 6);
+      ctx.fillRect(p.px - 7, p.py - 15, 14, 2);
+      // 步枪（背在胸前，指向移动方向）
+      const rx = Math.cos(p.angle), ry = Math.sin(p.angle);
+      ctx.strokeStyle = '#3a3028';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(p.px - rx * 4 - ry * 6, p.py - ry * 4 + rx * 6);
+      ctx.lineTo(p.px + rx * 13 + ry * 4, p.py + ry * 13 - rx * 4);
+      ctx.stroke();
+      // 名牌
+      ctx.font = '11px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      const nm = p.name || 'NKVD哨兵';
+      const w = ctx.measureText(nm).width + 10;
+      ctx.fillStyle = 'rgba(10,14,26,0.75)';
+      ctx.fillRect(p.px - w / 2, p.py - 44, w, 15);
+      ctx.strokeStyle = 'rgba(200,90,90,0.6)';
+      ctx.strokeRect(p.px - w / 2 + 0.5, p.py - 43.5, w - 1, 14);
+      ctx.fillStyle = '#e0a0a0';
+      ctx.fillText(nm, p.px, p.py - 33);
+      // 头顶警觉图标
+      ctx.font = '13px sans-serif';
+      ctx.fillText('👁', p.px, p.py - 50 + Math.sin(t / 350) * 2);
+    }
+  },
+
   renderActors(ctx) {
     // 按 y 排序绘制（画家算法）
     const actors = [...this.npcs.map(n => ({ type: 'npc', n })), { type: 'player' }];
@@ -1230,29 +1758,61 @@ const Explore = {
   },
 
   renderHUD(ctx) {
-    // 左上：地图名 + 目标
+    // 左上：地图名 + 动态目标列表
     const label = this.map.name;
     ctx.font = '13px "Courier New", monospace';
-    const ctxx = ctx;
     const w1 = ctx.measureText(label).width + 24;
+
+    const goals = [];
+    const pickTotal = this.pickups.length;
+    const pickDone = this.pickups.filter(p => p.taken).length;
+    if (pickTotal) goals.push({ text: `${this.map.pickVerb || '收集'}${this.map.pickName || '物品'} ${pickDone}/${pickTotal}`, ok: pickDone >= pickTotal });
+    const intList = this.interacts.filter(i => i.required !== false);
+    const intDone = intList.filter(i => i.done).length;
+    if (intList.length) goals.push({ text: `${this.map.intVerb || '检查'}${this.map.intName || '目标'} ${intDone}/${intList.length}`, ok: intDone >= intList.length });
     const reqTotal = this.npcs.filter(n => n.required).length;
     const reqDone = this.talkedRequired.length;
-    const goal = reqTotal > 0 ? `目标：与关键人物交谈 ${reqDone}/${reqTotal}` : '目标：前往出口';
-    const w2 = ctx.measureText(goal).width + 24;
+    if (reqTotal) goals.push({ text: `关键人物交谈 ${reqDone}/${reqTotal}`, ok: reqDone >= reqTotal });
+    if (this.map.ammoMode) goals.push({ text: `携带弹药 ${this.carried}`, ok: false });
+    if (this.map.patrols && this.patrols.length) goals.push({ text: `被发现 ${this.spottedCount} 次`, ok: this.spottedCount === 0 });
 
     ctx.fillStyle = 'rgba(10,14,26,0.82)';
     ctx.fillRect(10, 8, w1, 24);
-    ctx.fillRect(10, 36, w2, 22);
     ctx.strokeStyle = 'rgba(90,110,170,0.6)';
     ctx.lineWidth = 1;
     ctx.strokeRect(10.5, 8.5, w1 - 1, 23);
-    ctx.strokeRect(10.5, 36.5, w2 - 1, 21);
-
     ctx.fillStyle = '#e0d0a0';
     ctx.textAlign = 'left';
     ctx.fillText(label, 22, 24);
-    ctx.fillStyle = reqDone >= reqTotal && reqTotal > 0 ? '#80d090' : '#a0b8e0';
-    ctx.fillText(goal, 22, 51);
+
+    let y = 38;
+    for (const g of goals) {
+      const w = ctx.measureText(g.text).width + 24;
+      ctx.fillStyle = 'rgba(10,14,26,0.82)';
+      ctx.fillRect(10, y, w, 21);
+      ctx.strokeStyle = 'rgba(90,110,170,0.6)';
+      ctx.strokeRect(10.5, y + 0.5, w - 1, 20);
+      ctx.fillStyle = g.ok ? '#80d090' : '#a0b8e0';
+      ctx.fillText(g.text, 22, y + 15);
+      y += 25;
+    }
+
+    // 右上：限时倒计时
+    if (this.timeLimit > 0) {
+      const sec = Math.ceil(this.timeLeft);
+      const mm = String(Math.floor(sec / 60)).padStart(2, '0');
+      const ss = String(sec % 60).padStart(2, '0');
+      const txt = this.timedOut ? '⏰ 已延误' : `⏱ ${mm}:${ss}`;
+      const urgent = !this.timedOut && this.timeLeft < 25;
+      ctx.font = (urgent ? 'bold ' : '') + '15px "Courier New", monospace';
+      const w = ctx.measureText(txt).width + 24;
+      ctx.fillStyle = 'rgba(10,14,26,0.85)';
+      ctx.fillRect(Engine.width - w - 10, 8, w, 26);
+      ctx.strokeStyle = urgent || this.timedOut ? 'rgba(220,100,90,0.8)' : 'rgba(90,110,170,0.6)';
+      ctx.strokeRect(Engine.width - w - 9.5, 8.5, w - 1, 25);
+      ctx.fillStyle = this.timedOut ? '#d07060' : urgent ? '#f0a070' : '#e0d0a0';
+      ctx.fillText(txt, Engine.width - w + 2, 26);
+    }
   },
 
   // ===== 底部提示条 =====
