@@ -609,6 +609,22 @@ body {
   100% { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
 
+/* 被哨兵发现：红色警告闪烁 */
+#danger-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: radial-gradient(ellipse at center, rgba(200,30,30,0) 40%, rgba(200,30,30,0.55) 100%);
+  opacity: 0;
+  pointer-events: none;
+}
+#danger-flash.on { animation: dangerFlash 0.7s ease-out; }
+@keyframes dangerFlash {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 .party-member {
   display: flex;
   align-items: center;
