@@ -58,6 +58,10 @@ const Engine = {
     if (this.gameMode === 'story' && this.sceneData && this.sceneData.type === 'walkable') {
       this.updateWalkableScene(dt);
     }
+    // 平面探索模式
+    if (this.gameMode === 'explore') {
+      Explore.update(dt);
+    }
   },
 
   render() {
@@ -76,6 +80,10 @@ const Engine = {
         break;
       case 'map':
         // 战略地图由 strategy.js 管理
+        break;
+      case 'explore':
+        // 平面探索由 explore.js 渲染
+        Explore.render(this.ctx);
         break;
     }
 
