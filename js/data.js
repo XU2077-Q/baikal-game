@@ -272,10 +272,10 @@ const Quests = {
   q_club_work: {
     id: 'q_club_work',
     title: '干部俱乐部的日常',
-    desc: '在干部俱乐部仓库工作，清点物资。小心那些醉醺醺的NKVD军官。',
+    desc: '收齐老安德烈搁在仓库各处的三份入会申请表——一张在钢琴下，一张在货架间，一张在军官脚边。小心那些醉醺醺的NKVD军官。',
     type: 'main',
     chapter: 1,
-    objective: '完成今天的工作',
+    objective: '收集 3 份申请表',
   },
   q_invite_efim: {
     id: 'q_invite_efim',
@@ -289,10 +289,10 @@ const Quests = {
   q_meeting: {
     id: 'q_meeting',
     title: '第一次代表大会',
-    desc: '地下组织的第一次代表大会即将召开，前往上乌金斯克郊外的防空洞。',
+    desc: '地下组织的第一次代表大会即将召开，前往上乌金斯克郊外的防空洞。电路员被大雪堵住——会场四角的信号灯需要你亲手点亮。',
     type: 'main',
     chapter: 2,
-    objective: '参加组织大会',
+    objective: '点亮 4 盏信号灯',
   },
   q_meet_sablin: {
     id: 'q_meet_sablin',
