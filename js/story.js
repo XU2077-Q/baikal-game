@@ -568,7 +568,7 @@ const Story = {
     pov: 'anna',
     chapterTitle: '第一章 · 仓库里的清晨',
     nodes: [
-      { type: 'narrative', text: '（使用 WASD 或方向键移动，靠近人物按空格交谈。）' },
+      { type: 'narrative', text: '（WASD 移动。收齐三份申请表——靠近发光物件按空格拾取——再去邀请叶菲姆。）' },
       { type: 'quest-add', quest: 'q_club_work' },
       { type: 'quest-add', quest: 'q_invite_efim' },
       { type: 'explore', map: 'club_warehouse_day', spawn: [2, 18], next: 'ch1_04', completeOnExit: ['q_club_work'] },
@@ -582,6 +582,7 @@ const Story = {
     nodes: [
       { type: 'scene-set', scene: 'bunker_hall' },
       { type: 'narrative', text: '上乌金斯克郊外，地下五十米。代表们陆续抵达，大会开幕前，还有些事情要确认。' },
+      { type: 'narrative', text: '（点亮会场四角的信号灯，并与老安德烈、瓦伦蒂娜确认准备事宜。）' },
       { type: 'explore', map: 'bunker_prepare', spawn: [15, 18], next: 'ch2_01' },
     ]
   },
@@ -593,6 +594,7 @@ const Story = {
     nodes: [
       { type: 'scene-set', scene: 'radio_tower' },
       { type: 'narrative', text: '午夜。上乌金斯克广播塔下的林地里，起义者们屏息集结。进攻发起前，再去看看同志们。' },
+      { type: 'narrative', text: '（避开 NKVD 哨兵的视线——被照见就会被赶回出发点——逐一检查三处机枪阵地，并向叶菲姆报到。）' },
       { type: 'explore', map: 'radio_staging', spawn: [2, 2], next: 'ch3_01' },
     ]
   },
@@ -604,6 +606,7 @@ const Story = {
     nodes: [
       { type: 'scene-set', scene: 'irkutsk' },
       { type: 'narrative', text: '伊尔库茨克城郊，前进阵地。总攻发起在即——各纵队都已进入位置。' },
+      { type: 'narrative', text: '（先收集散落的弹药箱，再为三处机枪阵地补给弹药，最后向萨布林报到。）' },
       { type: 'explore', map: 'irkutsk_front', spawn: [2, 18], next: 'ch4_01' },
     ]
   },
@@ -615,6 +618,7 @@ const Story = {
     nodes: [
       { type: 'scene-set', scene: 'snow_street' },
       { type: 'narrative', text: '西伯利亚大铁路，某个会让站。来自东方的列车即将进站——新世界的信使正在路上。' },
+      { type: 'narrative', text: '（限时 100 秒！快去点验三节车厢的货物、与布劳恩碰头——准时完成有额外奖励。）' },
       { type: 'explore', map: 'train_station', spawn: [4, 6], next: 'ch5_01' },
     ]
   },
@@ -626,6 +630,7 @@ const Story = {
     nodes: [
       { type: 'scene-set', scene: 'snow_street' },
       { type: 'narrative', text: '伊尔库茨克，红军总指挥部。统一战争的号角即将吹响——出发前，听听同志们的报告。' },
+      { type: 'narrative', text: '（按参谋部的规矩依次行事：收听电台战报 → 确认战略地图 → 联系野战电话，再向佩楚罗报到。）' },
       { type: 'explore', map: 'hq_command', spawn: [15, 18], next: 'ch6_01' },
     ]
   },
