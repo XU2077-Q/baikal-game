@@ -589,6 +589,333 @@ const ExploreMaps = {
 };
 
 // ===== 探索引擎 =====
+/* =========================================================
+ * 像素小人系统 · PixelActor
+ * 16×22 逻辑像素 @2x：纯整数像素绘制（真·像素画）
+ * 四方向 + 行走帧 + 待机呼吸，配色与立绘系统统一
+ * =======================================================*/
+const PixelActor = {
+  W: 16, H: 22, S: 2,
+  cv: null, c: null,
+  OUT: '#1f1826',
+  SHOE: '#262030',
+
+  ensure() {
+    if (!this.cv) {
+      this.cv = document.createElement('canvas');
+      this.cv.width = this.W;
+      this.cv.height = this.H;
+      this.c = this.cv.getContext('2d');
+    }
+    this.c.clearRect(0, 0, this.W, this.H);
+    return this.c;
+  },
+
+  px(x, y, w, h, col) {
+    if (w <= 0 || h <= 0) return;
+    this.c.fillStyle = col;
+    this.c.fillRect(x, y, w, h);
+  },
+
+  disk(cx, cy, r, col) {
+    for (let dy = -r; dy <= r; dy++) {
+      const hw = Math.floor(Math.sqrt(r * r - dy * dy));
+      this.px(cx - hw, cy + dy, hw * 2 + 1, 1, col);
+    }
+  },
+
+  // —— 立绘配置 → 小人配置（美术统一） ——
+  cfgFor(id) {
+    const def = {
+      hair: '#5a4636', hairDk: '#43331f', skin: '#eec9a4',
+      len: 'short', outfit: 'plain', c1: '#6a7488', c2: '#525a6a',
+      trim: null, beard: null, mustache: null, glasses: false, blush: false,
+      cap: false, capBand: '#7a1e28', helmet: false,
+    };
+    let P = null;
+    try { P = Engine.getPortraitConfig(id); } catch (e) { P = null; }
+    if (P && !P.silhouette) {
+      def.hair = P.hair.color;
+      def.hairDk = P.hair.shade;
+      def.skin = P.skin;
+      def.len = P.acc && P.acc.cap ? 'cap' : ({ long: 'long', bob: 'bob', balding: 'bald' }[P.hair.style] || 'short');
+      def.outfit = P.outfit.type === 'blouse' ? 'dress' : P.outfit.type;
+      def.c1 = P.outfit.color;
+      def.c2 = P.outfit.shade;
+      def.trim = P.outfit.scarf || P.outfit.trim || P.outfit.bow || P.outfit.collarColor || null;
+      def.beard = P.beard === 'full' ? P.beardColor : null;
+      def.mustache = P.beard === 'mustache' ? P.beardColor : null;
+      def.glasses = !!(P.acc && P.acc.glasses);
+      def.blush = (P.blush || 0) > 0.35;
+      def.cap = !!(P.acc && P.acc.cap);
+      def.capBand = (P.acc && P.acc.capBand) || '#7a1e28';
+    } else if (id === 'german_soldier') {
+      def.helmet = true;
+      def.outfit = 'uniform'; def.c1 = '#5a6248'; def.c2 = '#464c36';
+    } else if (id === 'japanese_soldier') {
+      def.cap = true; def.capBand = '#8a7a3a';
+      def.outfit = 'uniform'; def.c1 = '#6a5a44'; def.c2 = '#52452f';
+    } else if (id === 'ss_officer') {
+      def.cap = true; def.capBand = '#20242c';
+      def.outfit = 'nkvd'; def.c1 = '#2c2c34'; def.c2 = '#20202a';
+    } else {
+      // 未知角色 → NKVD 哨兵装束
+      def.cap = true;
+      def.outfit = 'nkvd'; def.c1 = '#2a3560'; def.c2 = '#1f2848';
+    }
+    return def;
+  },
+
+  // —— 主入口：(x,y) 为脚底中心 ——
+  draw(ctx, id, x, y, dir, frame, t) {
+    const cfg = this.cfgFor(id);
+    this.paint(cfg, dir === 'left' ? 'right' : dir, frame, t);
+    // 地面阴影
+    ctx.fillStyle = 'rgba(0,0,0,0.32)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + 1, 9, 3.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    const dw = this.W * this.S, dh = this.H * this.S;
+    const dx = Math.round(x - dw / 2);
+    const dy = Math.round(y - dh + 1);
+    const prev = ctx.imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = false;
+    if (dir === 'left') {
+      ctx.save();
+      ctx.translate(dx + dw, dy);
+      ctx.scale(-1, 1);
+      ctx.drawImage(this.cv, 0, 0, dw, dh);
+      ctx.restore();
+    } else {
+      ctx.drawImage(this.cv, dx, dy, dw, dh);
+    }
+    ctx.imageSmoothingEnabled = prev;
+  },
+
+  // —— 帧绘制 ——
+  paint(cfg, dir, frame, t) {
+    this.ensure();
+    const OUT = this.OUT, SHOE = this.SHOE;
+    const step = frame === 1 ? 1 : frame === 3 ? -1 : 0;
+    const bob = frame === 2 ? 1 : (frame === 0 ? (((t / 520) | 0) % 2) : 0);
+    const yb = -bob;
+    const side = dir === 'right';
+    const up = dir === 'up';
+    const O = cfg.outfit;
+    const lLift = step === 1 ? 2 : 0;
+    const rLift = step === -1 ? 2 : 0;
+
+    /* ===== 背发（长发/鲍勃头先铺底） ===== */
+    if (cfg.len === 'long' || cfg.len === 'bob') {
+      const L = cfg.len === 'long' ? 17 : 12;
+      if (!side) {
+        this.px(0, 4, 2, L - 3, cfg.hair);
+        this.px(14, 4, 2, L - 3, cfg.hair);
+        this.px(0, 6, 1, L - 6, cfg.hairDk);
+        this.px(15, 6, 1, L - 6, cfg.hairDk);
+        this.px(0, L, 1, 1, cfg.hairDk);
+        this.px(15, L, 1, 1, cfg.hairDk);
+      } else {
+        this.px(0, 3, 3, L - 2, cfg.hair);
+        this.px(0, 5, 1, L - 4, cfg.hairDk);
+        this.px(1, L, 2, 1, cfg.hairDk);
+      }
+    }
+
+    /* ===== 腿与鞋 ===== */
+    if (O === 'dress') {
+      this.px(6, 19 + lLift, 1, 2 - lLift, cfg.skin);
+      this.px(9, 19 + rLift, 1, 2 - rLift, cfg.skin);
+      this.px(6, 21 - lLift, 1, 1, SHOE);
+      this.px(9, 21 - rLift, 1, 1, SHOE);
+    } else if (O === 'coat') {
+      this.px(5, 21 - lLift, 2, 1, SHOE);
+      this.px(9, 21 - rLift, 2, 1, SHOE);
+    } else {
+      const pants = O === 'uniform' || O === 'nkvd' ? '#2c2c3c' : '#3a3342';
+      this.px(5, 18 + lLift, 2, 3 - lLift, pants);
+      this.px(9, 18 + rLift, 2, 3 - rLift, pants);
+      this.px(4, 21 - lLift, 3, 1, SHOE);
+      this.px(9, 21 - rLift, 3, 1, SHOE);
+    }
+
+    /* ===== 躯干（描边 + 平涂 + 硬边阴影） ===== */
+    const bodyH = O === 'coat' ? 8 : 6;
+    if (!side) {
+      this.px(2, 11 + yb, 12, O === 'coat' ? 10 : 8, OUT);
+      if (O === 'dress') this.px(3, 16 + yb, 10, 4, OUT);
+      this.px(4, 12 + yb, 8, bodyH, cfg.c1);
+      if (O === 'dress') {
+        this.px(4, 16 + yb, 8, 3, cfg.c1);
+        this.px(4, 19 + yb, 2, 1, cfg.c1);
+        this.px(7, 19 + yb, 2, 1, cfg.c1);
+        this.px(10, 19 + yb, 2, 1, cfg.c1);
+      }
+      this.px(9, 12 + yb, 2, O === 'dress' ? 7 : bodyH, cfg.c2);
+      // 手臂
+      this.px(2, 13 + yb, 2, 4, cfg.c1);
+      this.px(12, 13 + yb, 2, 4, cfg.c1);
+      this.px(12, 13 + yb, 1, 4, cfg.c2);
+      this.px(2, 17 + yb, 2, 1, cfg.skin);
+      this.px(12, 17 + yb, 2, 1, cfg.skin);
+    } else {
+      this.px(4, 11 + yb, 8, O === 'coat' ? 10 : 8, OUT);
+      this.px(5, 12 + yb, 6, bodyH, cfg.c1);
+      this.px(9, 12 + yb, 2, bodyH, cfg.c2);
+      this.px(6, 13 + yb, 2, 4, cfg.c1);
+      this.px(6, 17 + yb, 2, 1, cfg.skin);
+    }
+
+    /* ===== 服装细节（正面） ===== */
+    if (!side && !up) {
+      if (O === 'sweater' && cfg.trim) {
+        this.px(5, 12 + yb, 6, 1, cfg.trim);
+        this.px(6, 13 + yb, 2, 2, cfg.trim);
+        this.px(5, 15 + yb, 1, 1, cfg.c2);
+        this.px(8, 16 + yb, 1, 1, cfg.c2);
+        this.px(11, 14 + yb, 1, 1, cfg.c2);
+      } else if (O === 'uniform') {
+        this.px(4, 16 + yb, 8, 1, '#1e2438');
+        this.px(7, 14 + yb, 1, 1, '#e8c860');
+        this.px(7, 15 + yb, 1, 1, '#e8c860');
+        this.px(5, 13 + yb, 1, 1, '#d84040');
+      } else if (O === 'nkvd') {
+        this.px(7, 12 + yb, 1, 5, '#a83232');
+        this.px(4, 16 + yb, 8, 1, '#1a1e2e');
+        this.px(8, 14 + yb, 1, 1, '#d8b45a');
+        this.px(8, 15 + yb, 1, 1, '#d8b45a');
+      } else if (O === 'suit') {
+        this.px(7, 12 + yb, 2, 2, '#e8e4da');
+        this.px(7, 14 + yb, 1, 2, cfg.trim && cfg.trim !== '#f2eee4' && cfg.trim !== '#e87890' ? cfg.trim : '#33547a');
+        this.px(5, 13 + yb, 1, 4, cfg.c2);
+        this.px(10, 13 + yb, 1, 4, cfg.c2);
+      } else if (O === 'work') {
+        this.px(6, 12 + yb, 4, 1, '#d8cfc0');
+        this.px(6, 13 + yb, 1, 4, cfg.c2);
+        this.px(9, 13 + yb, 1, 4, cfg.c2);
+      } else if (O === 'coat') {
+        this.px(7, 12 + yb, 2, 2, '#6a2a2a');
+        this.px(5, 13 + yb, 1, 6, cfg.c2);
+        this.px(10, 13 + yb, 1, 6, cfg.c2);
+      }
+    } else if (side) {
+      if (O === 'uniform' || O === 'nkvd') this.px(7, 15 + yb, 1, 1, '#e8c860');
+      if (O === 'sweater' && cfg.trim) this.px(6, 12 + yb, 4, 1, cfg.trim);
+    }
+
+    /* ===== 头部 ===== */
+    this.disk(8, 7 + yb, 6, OUT);
+    this.disk(8, 7 + yb, 5, cfg.skin);
+
+    if (up) {
+      // 背面
+      if (cfg.cap) {
+        this.px(2, 1 + yb, 13, 3, '#2c3450');
+        this.px(2, 4 + yb, 13, 1, cfg.capBand);
+        this.px(1, 5 + yb, 14, 1, '#151a2c');
+      } else if (cfg.helmet) {
+        this.px(3, 1 + yb, 11, 3, '#4a5240');
+        this.px(2, 4 + yb, 13, 1, '#3a4232');
+      } else if (cfg.len === 'bald') {
+        this.px(3, 4 + yb, 2, 3, cfg.hair);
+        this.px(11, 4 + yb, 2, 3, cfg.hair);
+      } else {
+        this.disk(8, 7 + yb, 5, cfg.hair);
+        this.px(3, 10 + yb, 11, 3, cfg.hair);
+        this.px(5, 3 + yb, 4, 1, 'rgba(255,255,255,0.3)');
+      }
+      return;
+    }
+
+    if (side) {
+      // 侧面（右）
+      if (cfg.cap) {
+        this.px(3, 1 + yb, 9, 3, '#2c3450');
+        this.px(3, 4 + yb, 9, 1, cfg.capBand);
+        this.px(6, 4 + yb, 1, 1, '#e8c860');
+        this.px(8, 5 + yb, 7, 1, '#151a2c');
+      } else if (cfg.helmet) {
+        this.px(3, 1 + yb, 11, 3, '#4a5240');
+        this.px(2, 4 + yb, 13, 1, '#3a4232');
+        this.px(2, 5 + yb, 1, 2, '#3a4232');
+        this.px(13, 5 + yb, 1, 2, '#3a4232');
+      } else if (cfg.len === 'bald') {
+        this.px(3, 3 + yb, 3, 3, cfg.hair);
+      } else {
+        this.px(2, 2 + yb, 5, 10, cfg.hair);
+        this.px(2, 1 + yb, 12, 3, cfg.hair);
+        this.px(12, 4 + yb, 2, cfg.len === 'long' ? 12 : cfg.len === 'bob' ? 7 : 4, cfg.hair);
+        this.px(4, 2 + yb, 3, 1, 'rgba(255,255,255,0.3)');
+      }
+      // 面部
+      this.px(10, 8 + yb, 2, 2, '#241d2c');
+      this.px(10, 8 + yb, 1, 1, '#ffffff');
+      this.px(14, 8 + yb, 1, 1, cfg.skin);
+      if (cfg.blush) this.px(12, 10 + yb, 1, 1, '#e8a0a8');
+      if (cfg.glasses) {
+        this.px(9, 7 + yb, 4, 1, '#2a2630');
+        this.px(9, 10 + yb, 4, 1, '#2a2630');
+      }
+      if (cfg.beard) this.px(8, 9 + yb, 6, 3, cfg.beard);
+      else if (cfg.mustache) this.px(9, 9 + yb, 4, 1, cfg.mustache);
+      return;
+    }
+
+    // 正面（down）
+    if (cfg.cap) {
+      this.px(3, 1 + yb, 11, 3, '#2c3450');
+      this.px(3, 4 + yb, 11, 1, cfg.capBand);
+      this.px(8, 4 + yb, 1, 1, '#e8c860');
+      this.px(2, 5 + yb, 13, 1, '#151a2c');
+      this.px(3, 6 + yb, 1, 2, cfg.hairDk);
+      this.px(12, 6 + yb, 1, 2, cfg.hairDk);
+    } else if (cfg.helmet) {
+      this.px(3, 1 + yb, 11, 3, '#4a5240');
+      this.px(2, 4 + yb, 13, 1, '#3a4232');
+      this.px(2, 5 + yb, 1, 2, '#3a4232');
+      this.px(13, 5 + yb, 1, 2, '#3a4232');
+    } else if (cfg.len === 'bald') {
+      this.px(3, 4 + yb, 2, 3, cfg.hair);
+      this.px(11, 4 + yb, 2, 3, cfg.hair);
+      this.px(6, 3 + yb, 3, 1, 'rgba(255,255,255,0.3)');
+    } else {
+      this.px(2, 1 + yb, 13, 5, cfg.hair);
+      // 锯齿刘海
+      this.px(3, 6 + yb, 2, 2, cfg.hair);
+      this.px(5, 6 + yb, 2, 1, cfg.hair);
+      this.px(7, 6 + yb, 2, 2, cfg.hair);
+      this.px(9, 6 + yb, 2, 1, cfg.hair);
+      this.px(11, 6 + yb, 2, 2, cfg.hair);
+      this.px(13, 6 + yb, 1, 1, cfg.hair);
+      // 侧发
+      const lock = cfg.len === 'long' ? 11 : cfg.len === 'bob' ? 6 : 3;
+      this.px(2, 5 + yb, 1, lock, cfg.hair);
+      this.px(13, 5 + yb, 1, lock, cfg.hair);
+      this.px(5, 2 + yb, 4, 1, 'rgba(255,255,255,0.3)');
+    }
+    // 面部
+    this.px(5, 8 + yb, 2, 2, '#241d2c');
+    this.px(9, 8 + yb, 2, 2, '#241d2c');
+    this.px(5, 8 + yb, 1, 1, '#ffffff');
+    this.px(9, 8 + yb, 1, 1, '#ffffff');
+    if (cfg.blush) {
+      this.px(3, 10 + yb, 1, 1, '#e8a0a8');
+      this.px(12, 10 + yb, 1, 1, '#e8a0a8');
+    }
+    if (cfg.glasses) {
+      this.px(4, 7 + yb, 4, 1, '#2a2630');
+      this.px(8, 7 + yb, 4, 1, '#2a2630');
+      this.px(4, 10 + yb, 4, 1, '#2a2630');
+      this.px(8, 10 + yb, 4, 1, '#2a2630');
+    }
+    if (cfg.beard) {
+      this.px(4, 9 + yb, 9, 3, cfg.beard);
+    } else if (cfg.mustache) {
+      this.px(6, 9 + yb, 5, 1, cfg.mustache);
+    }
+  },
+};
+
 const Explore = {
   active: false,
   map: null,
@@ -1588,46 +1915,36 @@ const Explore = {
       ctx.closePath();
       ctx.fill();
 
-      // 哨兵本体（深色大衣 + 步枪 + 名牌）
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
-      ctx.beginPath();
-      ctx.ellipse(p.px, p.py + 10, 10, 4, 0, 0, Math.PI * 2);
-      ctx.fill();
-      const leg = p.frame === 1 || p.frame === 3 ? 2 : (p.frame === 2 ? -1 : 0);
-      ctx.fillStyle = '#1c2030';
-      ctx.fillRect(p.px - 6, p.py + 2, 5, 8 + leg);
-      ctx.fillRect(p.px + 1, p.py + 2, 5, 8 - leg);
-      // 大衣（NKVD 深蓝）
-      ctx.fillStyle = '#2a3560';
-      ctx.fillRect(p.px - 7, p.py - 8, 14, 12);
-      ctx.fillStyle = 'rgba(255,255,255,0.08)';
-      ctx.fillRect(p.px - 7, p.py - 8, 14, 3);
-      // 帽（大檐帽）
-      ctx.fillStyle = '#1a2246';
-      ctx.fillRect(p.px - 6, p.py - 20, 12, 6);
-      ctx.fillRect(p.px - 7, p.py - 15, 14, 2);
-      // 步枪（背在胸前，指向移动方向）
-      const rx = Math.cos(p.angle), ry = Math.sin(p.angle);
-      ctx.strokeStyle = '#3a3028';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.moveTo(p.px - rx * 4 - ry * 6, p.py - ry * 4 + rx * 6);
-      ctx.lineTo(p.px + rx * 13 + ry * 4, p.py + ry * 13 - rx * 4);
-      ctx.stroke();
+      // 哨兵本体（像素小人）
+      const pdir = Math.abs(Math.cos(p.angle)) > Math.abs(Math.sin(p.angle))
+        ? (Math.cos(p.angle) > 0 ? 'right' : 'left')
+        : (Math.sin(p.angle) > 0 ? 'down' : 'up');
+      PixelActor.draw(ctx, 'nkvd_soldier', p.px, p.py + 10, pdir, p.frame, t);
+      // 步枪（指向巡逻方向）
+      ctx.save();
+      ctx.translate(p.px, p.py - 8);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = '#3a3028';
+      ctx.fillRect(-4, -1.5, 17, 3);
+      ctx.fillStyle = '#8a7a5a';
+      ctx.fillRect(11, -1, 4, 2);
+      ctx.fillStyle = '#4a3a2a';
+      ctx.fillRect(-4, -3, 5, 2);
+      ctx.restore();
       // 名牌
       ctx.font = '11px "Courier New", monospace';
       ctx.textAlign = 'center';
       const nm = p.name || 'NKVD哨兵';
       const w = ctx.measureText(nm).width + 10;
-      ctx.fillStyle = 'rgba(10,14,26,0.75)';
-      ctx.fillRect(p.px - w / 2, p.py - 44, w, 15);
+      ctx.fillStyle = 'rgba(10,14,26,0.78)';
+      ctx.fillRect(p.px - w / 2, p.py - 56, w, 15);
       ctx.strokeStyle = 'rgba(200,90,90,0.6)';
-      ctx.strokeRect(p.px - w / 2 + 0.5, p.py - 43.5, w - 1, 14);
+      ctx.strokeRect(p.px - w / 2 + 0.5, p.py - 55.5, w - 1, 14);
       ctx.fillStyle = '#e0a0a0';
-      ctx.fillText(nm, p.px, p.py - 33);
+      ctx.fillText(nm, p.px, p.py - 45);
       // 头顶警觉图标
       ctx.font = '13px sans-serif';
-      ctx.fillText('👁', p.px, p.py - 50 + Math.sin(t / 350) * 2);
+      ctx.fillText('👁', p.px, p.py - 62 + Math.sin(t / 350) * 2);
     }
   },
 
@@ -1641,87 +1958,45 @@ const Explore = {
     });
     for (const a of actors) {
       if (a.type === 'player') {
-        const pov = Characters[Game.state.currentPov] || Characters.anna;
-        this.drawActor(ctx, this.player.x, this.player.y, pov.color || '#b08ac0',
-          this.player.dir, this.player.frame, pov.avatar || '👤', null, true);
+        this.drawActor(ctx, this.player.x, this.player.y, (Game.state && Game.state.currentPov) || 'anna',
+          this.player.dir, this.player.frame, null, false, true);
       } else {
         const n = a.n;
-        this.drawActor(ctx, n.x, n.y, n.color || '#7a8a9a', 'down', 0, n.avatar || '👤', n.name, false, n.hostile);
+        // 靠近时转向玩家
+        let dir = 'down';
+        const dx = this.player.x - n.x, dy = this.player.y - n.y;
+        if (dx * dx + dy * dy < 8100) {
+          dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
+        }
+        this.drawActor(ctx, n.x, n.y, n.char, dir, 0, n.name, !!n.hostile, false);
       }
     }
   },
 
-  drawActor(ctx, x, y, clothColor, dir, frame, avatar, name, isPlayer, hostile) {
+  drawActor(ctx, x, y, charId, dir, frame, name, hostile, isPlayer) {
     const t = Engine.elapsed;
-    // 阴影
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.beginPath();
-    ctx.ellipse(x, y + 10, 10, 4, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 行走腿（两帧）
-    const legOff = frame === 1 || frame === 3 ? 2 : (frame === 2 ? -1 : 0);
-    const walking = frame > 0;
-    ctx.fillStyle = '#2a2430';
-    if (dir === 'left' || dir === 'right') {
-      ctx.fillRect(x - 5, y + 2, 4, 8 + (walking ? legOff : 0));
-      ctx.fillRect(x + 1, y + 2, 4, 8 - (walking ? legOff : 0));
-    } else {
-      ctx.fillRect(x - 6, y + 2, 5, 8 + (walking ? legOff : 0));
-      ctx.fillRect(x + 1, y + 2, 5, 8 - (walking ? legOff : 0));
+    // 玩家脚底光环
+    if (isPlayer) {
+      const pu = 0.45 + Math.sin(t / 400) * 0.25;
+      ctx.strokeStyle = 'rgba(232,200,96,' + pu.toFixed(2) + ')';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(x, y + 11, 12, 4.5, 0, 0, Math.PI * 2);
+      ctx.stroke();
     }
-
-    // 身体
-    ctx.fillStyle = clothColor;
-    ctx.fillRect(x - 7, y - 8, 14, 12);
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.fillRect(x - 7, y - 8, 14, 3);
-    ctx.fillStyle = 'rgba(0,0,0,0.2)';
-    ctx.fillRect(x - 7, y + 1, 14, 3);
-
-    // 头
-    ctx.fillStyle = '#e8c8a8';
-    ctx.fillRect(x - 5, y - 18, 10, 10);
-    // 头发
-    ctx.fillStyle = isPlayer ? this.playerHair() : '#4a3428';
-    ctx.fillRect(x - 5, y - 18, 10, 4);
-    if (dir === 'up') ctx.fillRect(x - 5, y - 18, 10, 8);
-    if (dir === 'left') ctx.fillRect(x - 5, y - 18, 3, 8);
-    if (dir === 'right') ctx.fillRect(x + 2, y - 18, 3, 8);
-    // 眼睛
-    if (dir !== 'up') {
-      ctx.fillStyle = '#201820';
-      if (dir === 'down') {
-        ctx.fillRect(x - 3, y - 14, 2, 2);
-        ctx.fillRect(x + 1, y - 14, 2, 2);
-      } else if (dir === 'left') {
-        ctx.fillRect(x - 4, y - 14, 2, 2);
-      } else {
-        ctx.fillRect(x + 2, y - 14, 2, 2);
-      }
-    }
-
-    // 头顶 emoji
-    ctx.font = '13px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(avatar, x, y - 22);
-
+    PixelActor.draw(ctx, charId || 'anna', x, y + 10, dir || 'down', frame || 0, t);
     // NPC 名牌
     if (name) {
       ctx.font = '11px "Courier New", monospace';
+      ctx.textAlign = 'center';
       const w = ctx.measureText(name).width + 10;
-      ctx.fillStyle = 'rgba(10,14,26,0.75)';
-      ctx.fillRect(x - w / 2, y - 40, w, 15);
+      ctx.fillStyle = 'rgba(10,14,26,0.78)';
+      ctx.fillRect(x - w / 2, y - 54, w, 15);
       ctx.strokeStyle = hostile ? 'rgba(200,90,90,0.6)' : 'rgba(120,140,190,0.5)';
-      ctx.strokeRect(x - w / 2 + 0.5, y - 39.5, w - 1, 14);
+      ctx.strokeRect(x - w / 2 + 0.5, y - 53.5, w - 1, 14);
       ctx.fillStyle = hostile ? '#e0a0a0' : '#c0d0f0';
-      ctx.fillText(name, x, y - 29);
+      ctx.fillText(name, x, y - 43);
     }
-  },
-
-  playerHair() {
-    const map = { anna: '#c09ad0', sablin: '#5a3a2a', lyupasha: '#d09060' };
-    return map[Game.state.currentPov] || '#5a3a2a';
   },
 
   renderBubbles(ctx) {
@@ -1729,7 +2004,7 @@ const Explore = {
     for (const n of this.npcs) {
       if (n.talked) continue;
       const bob = Math.sin(t / 350 + n.x) * 3;
-      const bx = n.x, by = n.y - 50 + bob;
+      const bx = n.x, by = n.y - 64 + bob;
       if (n.required) {
         // 金色感叹号（主线 NPC）
         ctx.fillStyle = 'rgba(10,14,26,0.85)';
